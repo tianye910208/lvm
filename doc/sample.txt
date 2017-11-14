@@ -1,0 +1,12 @@
+g_map = {1,2,3,"test",["tmp"]="this is tmp str."}
+g_map.key = "global"
+g_map.val = 123
+
+var flag = 0xf << 3 - 25.2
+if flag > 1 do
+
+elif flag > 2 do
+
+else
+
+end
