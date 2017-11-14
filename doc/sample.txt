@@ -4,9 +4,9 @@ g_map.val = 123
 
 var flag = 0xf << 3 - 25.2
 if flag > 1 do
-
+    print("flag > 1")
 elif flag > 2 do
-
+	print("flag > 2")
 else
-
+	print("flag > 3")
 end
