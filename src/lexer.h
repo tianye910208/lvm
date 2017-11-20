@@ -18,7 +18,6 @@ typedef struct token {
 
 typedef struct lexer {
 	const char* src;
-	char		map[256];
 	char*		sym;
 	char*		str;
 	token*		ptr;
