@@ -41,7 +41,7 @@ const unsigned char _ASCII_BIT_MAP[128] = {
 
 
 
-lexer* lexer_new(const char* src) {
+lexer* lexer_new(char* src) {
 	lexer* p = malloc(sizeof(lexer));
 	p->src = src;
 	p->ptr = NULL;
@@ -54,11 +54,15 @@ void lexer_free(lexer* p) {
 	free(p);
 }
 
-token* lexer_token(int id, int val, const char* src) {
+token* lexer_token(int id, int val, char* src, int line, token* prev) {
 	token* t = malloc(sizeof(token));
 	t->id = id;
 	t->val = val;
 	t->src = src;
+	t->line = line;
+	t->next = NULL;
+	if (prev)
+		prev->next = t;
 	return t;
 }
 
@@ -66,59 +70,94 @@ token* lexer_next(lexer* p, token* prev) {
 	if (prev && prev->next)
 		return prev->next;
 
-	const char* src = prev ? prev->src : p->src;
+	char* src = prev ? prev->src : p->src;
+	int line = prev ? prev->line : 1;
 
-	while (is_space(*src)) src++;
-	char c = *src++;
+	
+	char c;
 	for (;;) {
-		switch (c){
-		case '\n':
-			//line++;
+		c = *src++;
+		switch (c) {
+		case '\0':
+			return NULL;
+		case '\n': case '\r': {
+			if ((*src == '\n' || *src == '\r') && *src != c) src++;
+			line++;
+			break;
+		}
+		case ' ': case '\f': case '\t': case '\v':
 			break;
 		case '-':
-			if (*src == '-')
-			{
-				while (*src != '\n') src++;
+			if (*src == '-') {
+				while (*src != '\n' && *src != '\r') src++;
 				break;
 			}
-			return lexer_token(c, 0, src);
-		case '\'':
-		case '"': {
-			const char* p1 = src;
+			return lexer_token(c, 0, src, line, prev);
+		case '/':
+			if (*src == '/')
+				return lexer_token(OP_DIV, 0, ++src, line, prev);
+			return lexer_token(c, 0, src, line, prev);
+		case '<':
+			if (*src == '=')
+				return lexer_token(OP_LE, 0, ++src, line, prev);
+			else if (*src == '<')
+				return lexer_token(OP_SHL, 0, ++src, line, prev);
+			return lexer_token(c, 0, src, line, prev);
+		case '>':
+			if (*src == '=')
+				return lexer_token(OP_GE, 0, ++src, line, prev);
+			else if (*src == '>')
+				return lexer_token(OP_SHR, 0, ++src, line, prev);
+			return lexer_token(c, 0, src, line, prev);
+		case '=':
+			if (*src == '=')
+				return lexer_token(OP_EQ, 0, ++src, line, prev);
+			return lexer_token(c, 0, src, line, prev);
+		case '~':
+			if (*src == '=')
+				return lexer_token(OP_NE, 0, ++src, line, prev);
+			return lexer_token(c, 0, src, line, prev);
+		case '"': case '\'': {
+			const char* pos = src - 1;
 			char s = *src;
 			while (s != c) {
 				if (s == '\\')
-					src++;
+					src += 2;
 				s = *src++;
 			}
-			const char* p2 = src;
-			return lexer_token(DB_STR, p2-p1, src++);
+			return lexer_token(DB_STR, pos, src, line, prev);
 		}
 		case '0':
 			if (*src == 'x') {
 				unsigned int n = 0;
-				while (*++src) {
-					if (is_alhex(*src))
-						n = (n << 4) + to_digit(*src);
-					else
-						break;
-					
-				}
-				return lexer_token(DB_NUM, n, src++);
+				while (is_alhex(*++src))
+					n = (n << 4) + to_digit(*src);
+
+				return lexer_token(DB_NUM, n, src, line, prev);
 			}
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
-			//unsigned int n = 0;
-			//while (map[c] & DIGIT)
+		case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': {
+			unsigned int n = to_digit(c);
+			while (is_digit(*src))
+				n = (n * 10) + to_digit(*src++);
+			if (*src != '.')
+				return lexer_token(DB_NUM, n, src, line, prev);
+
+			float f = 0;
+			float k = 1;
+			while (is_digit(*src)) {
+				k = k * 1.0f;
+				f = f + k * to_digit(*src++);
+			}
+			return lexer_token(DB_NUM, n + f, src, line, prev);
+		}
 		default:
-			break;
+			if (is_alpha(c)){
+				const char* pos = src - 1;
+				while (is_alnum(*src))
+					src++;
+				return lexer_token(DB_SYM, pos, src, line, prev);
+			}
+			return lexer_token(c, 0, src, line, prev);
 		}
 	}
 }

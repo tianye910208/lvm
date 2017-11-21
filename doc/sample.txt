@@ -1,12 +1,25 @@
-g_map = {1,2,3,"test",["tmp"]="this is tmp str."}
+--comment by ty
+
+g_map = {1,2.25,0x11,"test",["tmp"]="this is tmp str."}
 g_map.key = "global"
-g_map.val = 123
+g_map.val = 123.9 + 1
+
+var len = #gmap
 
 var flag = 0xf << 3 - 25.2
-if flag > 1 do
-    print("flag > 1")
-elif flag > 2 do
-	print("flag > 2")
+if flag > 2 do
+    print("flag > 2")
+elif flag >= 1 do
+	print("flag >= 1")
 else
-	print("flag > 3")
+	print("flag < 1")
 end
+
+def print(str)
+    var l = str + "123"
+    return l
+end
+
+print("hello")
+
+
