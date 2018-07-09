@@ -1,6 +1,6 @@
 --comment by ty
 
-g_map = {1,2.25,0x11,"test",["tmp"]="this is tmp str."}
+var g_map = hash()
 g_map.key = "global"
 g_map.val = 123.9 + 1
 
@@ -10,12 +10,12 @@ var flag = 0xf << 3 - 25.2
 if flag > 2 do
     print("flag > 2")
 elif flag >= 1 do
-	print("flag >= 1")
+    print("flag >= 1")
 else
-	print("flag < 1")
+    print("flag < 1")
 end
 
-def print(str)
+var print = func(str)
     var l = str + "123"
     return l
 end
