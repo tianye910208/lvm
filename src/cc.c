@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include "lexer.h"
+#include "cc.h"
 
 
 const unsigned char _ASCII_BIT_MAP[128] = {

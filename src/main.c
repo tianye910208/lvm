@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "lexer.h"
+#include "cc.h"
 
 char* load(const char* filename, int* len) {
 	FILE* fp = fopen(filename, "r");
