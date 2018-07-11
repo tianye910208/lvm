@@ -1,4 +1,6 @@
---comment by ty
+//comment by ty
+
+var hash = class(__cls, __new, __get, __set, __add, __sub, __mul, __div, __mod, __len, __unm, __shl, __shr, __eq, __lt, __lq)
 
 var g_map = hash()
 g_map.key = "global"
@@ -7,19 +9,36 @@ g_map.val = 123.9 + 1
 var len = #gmap
 
 var flag = 0xf << 3 - 25.2
-if flag > 2 do
+if (flag > 2)
     print("flag > 2")
-elif flag >= 1 do
+else if (flag >= 1)
     print("flag >= 1")
 else
     print("flag < 1")
-end
 
-var print = func(str)
+var print = func(str) {
     var l = str + "123"
     return l
-end
+}
 
 print("hello")
+
+
+
+var fa = func() {
+    var v = 123
+    return func() return v = v + 1 
+}
+
+
+var ta = fa()
+var tb = fa()
+
+ta()
+ta()
+tb()
+tb()
+
+
 
 
