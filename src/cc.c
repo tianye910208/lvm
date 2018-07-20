@@ -54,10 +54,11 @@ void lexer_free(lexer* p) {
 	free(p);
 }
 
-token* lexer_token(int id, int val, char* src, int line, token* prev) {
+token* lexer_token(int id, float val, char* ptr, char* src, int line, token* prev) {
 	token* t = malloc(sizeof(token));
 	t->id = id;
 	t->val = val;
+	t->ptr = ptr;
 	t->src = src;
 	t->line = line;
 	t->next = NULL;
@@ -92,31 +93,31 @@ token* lexer_next(lexer* p, token* prev) {
 				while (*src != '\n' && *src != '\r') src++;
 				break;
 			}
-			return lexer_token(c, 0, src, line, prev);
+			return lexer_token(c, 0, 0, src, line, prev);
 		case '/':
 			if (*src == '/')
-				return lexer_token(OP_DIV, 0, ++src, line, prev);
-			return lexer_token(c, 0, src, line, prev);
+				return lexer_token(OP_DIV, 0, 0, ++src, line, prev);
+			return lexer_token(c, 0, 0, src, line, prev);
 		case '<':
 			if (*src == '=')
-				return lexer_token(OP_LE, 0, ++src, line, prev);
+				return lexer_token(OP_LE, 0, 0, ++src, line, prev);
 			else if (*src == '<')
-				return lexer_token(OP_SHL, 0, ++src, line, prev);
-			return lexer_token(c, 0, src, line, prev);
+				return lexer_token(OP_SHL, 0, 0, ++src, line, prev);
+			return lexer_token(c, 0, 0, src, line, prev);
 		case '>':
 			if (*src == '=')
-				return lexer_token(OP_GE, 0, ++src, line, prev);
+				return lexer_token(OP_GE, 0, 0, ++src, line, prev);
 			else if (*src == '>')
-				return lexer_token(OP_SHR, 0, ++src, line, prev);
-			return lexer_token(c, 0, src, line, prev);
+				return lexer_token(OP_SHR, 0, 0, ++src, line, prev);
+			return lexer_token(c, 0, 0, src, line, prev);
 		case '=':
 			if (*src == '=')
-				return lexer_token(OP_EQ, 0, ++src, line, prev);
-			return lexer_token(c, 0, src, line, prev);
+				return lexer_token(OP_EQ, 0, 0, ++src, line, prev);
+			return lexer_token(c, 0, 0, src, line, prev);
 		case '~':
 			if (*src == '=')
-				return lexer_token(OP_NE, 0, ++src, line, prev);
-			return lexer_token(c, 0, src, line, prev);
+				return lexer_token(OP_NE, 0, 0, ++src, line, prev);
+			return lexer_token(c, 0, 0, src, line, prev);
 		case '"': case '\'': {
 			const char* pos = src - 1;
 			char s = *src;
@@ -125,7 +126,7 @@ token* lexer_next(lexer* p, token* prev) {
 					src += 2;
 				s = *src++;
 			}
-			return lexer_token(DB_STR, pos, src, line, prev);
+			return lexer_token(DB_STR, 0, pos, src, line, prev);
 		}
 		case '0':
 			if (*src == 'x') {
@@ -133,31 +134,33 @@ token* lexer_next(lexer* p, token* prev) {
 				while (is_alhex(*++src))
 					n = (n << 4) + to_digit(*src);
 
-				return lexer_token(DB_NUM, n, src, line, prev);
+				return lexer_token(DB_NUM, n, 0, src, line, prev);
 			}
 		case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': {
 			unsigned int n = to_digit(c);
 			while (is_digit(*src))
 				n = (n * 10) + to_digit(*src++);
-			if (*src != '.')
-				return lexer_token(DB_NUM, n, src, line, prev);
 
+			if (*src != '.')
+				return lexer_token(DB_NUM, n, 0, src, line, prev);
+			
+			src++;
 			float f = 0;
 			float k = 1;
 			while (is_digit(*src)) {
-				k = k * 1.0f;
+				k = k * 0.1f;
 				f = f + k * to_digit(*src++);
 			}
-			return lexer_token(DB_NUM, n + f, src, line, prev);
+			return lexer_token(DB_NUM, n + f, 0, src, line, prev);
 		}
 		default:
 			if (is_alpha(c)){
 				const char* pos = src - 1;
 				while (is_alnum(*src))
 					src++;
-				return lexer_token(DB_SYM, pos, src, line, prev);
+				return lexer_token(DB_SYM, 0, pos, src, line, prev);
 			}
-			return lexer_token(c, 0, src, line, prev);
+			return lexer_token(c, 0, 0, src, line, prev);
 		}
 	}
 }

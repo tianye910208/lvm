@@ -36,11 +36,11 @@ int main(int argc, char* argv) {
 		else if (t->id == DB_SYM || t->id == DB_STR) {
 			char c = *t->src;
 			*t->src = '\0';
-			printf("%s\n", (char*)t->val);
+			printf("%s\n", (char*)t->ptr);
 			*t->src = c;
 		}
 		else if (t->id == DB_NUM) {
-			printf("%d\n", t->val);
+			printf("%f\n", t->val);
 		}
 		else
 			printf("<%d>\n", t->id);

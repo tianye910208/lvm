@@ -1,0 +1,32 @@
+
+
+a := 10
+b := 1
+
+if( a + b > 10)
+then(
+    b = 3 + (a - b)
+    a = 0
+)
+else(
+    b = 0
+)
+
+test := fn(a, b, 
+    if(a > b)
+    then(a - b)
+    else(b - a)
+)
+
+test(a+b, 18)
+
+i := 0
+while(i < 10)
+do (
+    i = i + 1
+    print(i)
+)
+
+
+
+

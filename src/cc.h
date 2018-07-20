@@ -10,7 +10,8 @@ enum {
 
 typedef struct token {
 	int				id;
-	int				val;
+	float			val;
+	char*           ptr;
 	char*			src;
 	int				line;
 	struct token*	next;
